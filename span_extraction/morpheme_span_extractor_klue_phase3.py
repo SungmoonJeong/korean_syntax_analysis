@@ -941,10 +941,57 @@ class MorphemeSpanExtractorKLUE:
                 # 명사/조사 등 만나면 중단
                 break
 
-            # ETM으로 끝나면 VP가 아님 (Adjectival)
+            # ETM으로 끝나면 VP가 아님 (Adjectival) — 단, 대등 연결(-고/-며 등)로 이어진
+            # 관형절 체인의 두 번째 이후 서술어이고, 그 체인 전체에 논항이 있어 EmC_Adj로
+            # 승격되는 경우엔 이 서술어도 VP로 인정한다.
             if has_etm:
-                processed.update(range(vp_start, vp_end + 1))
-                continue
+                # vp_start는 아직 왼쪽 확장(NNG+XSV 등) 전이므로, 그 앞의 NNG/NNP/NNB/XSN
+                # 어근을 먼저 건너뛴 뒤에야 대등 EC가 있는지 확인해야 한다.
+                pre = vp_start - 1
+                while (pre >= 0 and self.rels[pre] == 'morph'
+                        and self._has_any_tag(pre, ('NNG', 'NNP', 'NNB', 'XSN'))):
+                    pre -= 1
+                # ETM 바로 뒤가 명사화 의존명사(것/수/바 등)면 EmC_N 소속이라 VP 경계가
+                # 다르므로(ETM 제외) 이 분기 대상에서 제외한다.
+                is_emc_n_head = (
+                    vp_end + 1 < self.N
+                    and self._has_tag(vp_end + 1, 'NNB')
+                    and self.tokens[vp_end + 1] in self._NOMINAL_NNB
+                )
+                # rel='VP'인 EC는 대등 연결(고/며 등) 외에 조건/순차/목적 등 종속 연결
+                # (게/어/아/다가/도록/면 등)에도 붙는다는 게 klue-dev 전수 검증에서 드러났으므로,
+                # 오른쪽 확장 로직(884~886줄)과 동일한 대등 연결 어미 화이트리스트로 제한한다.
+                _COORD_EC = {'고', '며', '으며', '거나', '든지', '든가', '으나', '나'}
+                is_coord_chain_member = (
+                    not is_emc_n_head
+                    and pre >= 0
+                    and self.xpos[pre].startswith('EC')
+                    and self.rels[pre] == 'VP'
+                    and self.tokens[pre] in _COORD_EC
+                    and self.arcs[pre] - 1 == vp_end
+                )
+                has_arg = False
+                if is_coord_chain_member:
+                    chain_start = pre
+                    for j in range(chain_start - 1, -1, -1):
+                        if self._is_verbal(j) or self.rels[j] == 'morph' or self._has_any_tag(j, ('E', 'X')):
+                            chain_start = j
+                        else:
+                            break
+                    # AP(정도부사 등 단순 수식어)는 klue-dev 검증에서 '매우 친절하고
+                    # 세심한'처럼 논항 없는 순수 형용사 나열까지 논항으로 오판시켜 제외한다.
+                    _ARG_RELS = {'NP_SBJ', 'NP_OBJ', 'NP_CMP', 'NP_AJT', 'NP_CNJ',
+                                 'VP_OBJ', 'VP_SBJ', 'VP_CMP', 'VP_AJT'}
+                    for node in range(chain_start, vp_end + 1):
+                        for c in self.children[node]:
+                            if self.rels[c] in _ARG_RELS and not self._has_tag(c, 'NNB'):
+                                has_arg = True
+                                break
+                        if has_arg:
+                            break
+                if not (is_coord_chain_member and has_arg):
+                    processed.update(range(vp_start, vp_end + 1))
+                    continue
 
             # 마지막 어미가 VP_AJT 관계이면 AdvP 형성 → VP 아님 (이렇게, 명확하게 등)
             if self.rels[vp_end] == 'VP_AJT':
