@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>한국어 문장 구조 분석 엔진</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+
+  <div class="header-bar">
+    <!-- 피그마 '분석 결과' 화면(node 4:239) 헤더 문구는 영문 "Korean Syntax Analyzer" -->
+     <h1>
+      <i>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.819 49.374" width="81.819" height="49.374">
+          <path fill="#00A664" d="M9.221 0.064H0.013L0 41.803a7.546 7.546 0 0 0 7.546 7.544c.472 0 1.675.027 1.675.027ZM14.295.064h9.208l.014 41.739a7.545 7.545 0 0 1-7.545 7.544c-.473 0-1.677.027-1.677.027ZM28.942 7.573v34.23a7.545 7.545 0 0 0 7.545 7.544c.473 0 1.676.027 1.676.027V0s-1.2.029-1.676.029a7.545 7.545 0 0 0-7.545 7.544ZM52.458 7.573A7.545 7.545 0 0 0 44.913.029C44.44.029 43.237 0 43.237 0v49.374s1.2-.027 1.676-.027a7.545 7.545 0 0 0 7.545-7.544ZM67.528.064h-9.207l-.013 41.739a7.546 7.546 0 0 0 7.545 7.544c.471 0 1.675.027 1.675.027ZM72.598.064h9.206l.015 41.739a7.547 7.547 0 0 1-7.546 7.544c-.471 0-1.675.027-1.675.027Z"/>
+        </svg>
+      </i>
+<span class="header-name">Korean Syntax Analyzer</span>
+     </h1>
+  </div>
+
+  <div class="stage">
+    <div class="main-title-wrap">
+      <div class="main-sub">한국어 문장 구조 분석 엔진</div>
+      <h1 class="main-head">입력한 문장의 문법 요소와 구조를 <br>
+        세밀하게 분석합니다</h1>
+    </div>
+
+    <div id="input-section">
+      <div class="input-row">
+        <textarea id="input-text" placeholder="분석할 문장을 입력하세요"></textarea>
+        <div class="char-count"><span id="char-count">0</span>자</div>
+      </div>
+
+      <div class="analyze-row">
+        <button id="analyze-btn" disabled><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M14.6539 15.4355C13.6336 16.2811 12.3235 16.7895 10.8947 16.7895C7.63916 16.7895 5 14.1503 5 10.8947C5 7.63916 7.63916 5 10.8947 5C14.1503 5 16.7895 7.63916 16.7895 10.8947C16.7895 12.3235 16.2811 13.6336 15.4355 14.6539L18.8381 18.0566C19.054 18.2724 19.054 18.6223 18.8381 18.8381C18.6223 19.054 18.2724 19.054 18.0566 18.8381L14.6539 15.4355ZM15.6842 10.8947C15.6842 8.24958 13.5399 6.10526 10.8947 6.10526C8.24958 6.10526 6.10526 8.24958 6.10526 10.8947C6.10526 13.5399 8.24958 15.6842 10.8947 15.6842C13.5399 15.6842 15.6842 13.5399 15.6842 10.8947Z" fill="white" stroke="white" stroke-width="0.5" stroke-linecap="round"/>
+</svg>
+<span>분석하기</span></button>
+      </div>
+
+      <div class="example-label">예시 문장</div>
+      <div class="example-row" id="example-row"></div>
+
+      <div id="spinner-wrap" class="spinner-wrap" hidden>
+        <span class="spinner-icon"></span>
+        <span class="spinner-text">분석 중...</span>
+      </div>
+    </div>
+
+    <div id="result-section" hidden>
+      <div class="result-wrap">
+        <button id="prev-btn" class="nav-btn"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M26 16L18 24L26 32" stroke="#6A7282" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+ </button>
+
+        <div class="result-card">
+          <div class="result-top">
+            <span class="result-counter"><b id="result-idx">1</b>/<span id="result-total">1</span></span>
+            <div class="result-sentence" id="result-sentence"></div>
+            <div class="result-roman" id="result-roman"></div>
+          </div>
+
+          <iframe id="tts-frame" class="tts-frame" title="TTS"></iframe>
+
+          <hr class="result-divider" />
+
+          <iframe id="viz-frame" class="viz-frame" title="구/절 시각화"></iframe>
+
+          <div class="result-trans" id="result-trans" hidden>
+           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 18.0001C14.4184 18.0001 18.0001 14.4184 18.0001 10.0001C18.0001 5.58177 14.4184 2.00003 10 2.00003C5.58174 2.00003 2 5.58177 2 10.0001C2 14.4184 5.58174 18.0001 10 18.0001Z" stroke="#2B7FFF" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6.7998 9.99989C6.7998 7.02127 7.9456 4.15678 9.99982 1.99985C12.054 4.15678 13.1998 7.02127 13.1998 9.99989C13.1998 12.9785 12.054 15.843 9.99982 17.9999C7.9456 15.843 6.7998 12.9785 6.7998 9.99989Z" stroke="#2B7FFF" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 10H18.0001" stroke="#2B7FFF" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+
+            <span id="result-trans-text"></span>
+          </div>
+        </div>
+
+        <button id="next-btn" class="nav-btn"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M22 16L30 24L22 32" stroke="#6A7282" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</button>
+      </div>
+
+      <div class="reset-row">
+        <button id="reset-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+  <path d="M9.4713 4.3822L6.66016 7.19334L9.4713 10.0045" stroke="#155DFC" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M6.09717 13.0966C6.09717 14.2642 6.4434 15.4056 7.09206 16.3763C7.74074 17.3472 8.66273 18.1038 9.74143 18.5507C10.8201 18.9974 12.0071 19.1144 13.1523 18.8865C14.2974 18.6588 15.3493 18.0965 16.1749 17.2709C17.0005 16.4454 17.5628 15.3934 17.7905 14.2483C18.0183 13.1032 17.9014 11.9162 17.4546 10.8375C17.0078 9.75877 16.2511 8.83678 15.2803 8.1881C14.3095 7.53944 13.1681 7.19321 12.0006 7.19321H6.6594" stroke="#155DFC" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+          처음으로
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+
+</html>

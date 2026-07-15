@@ -1,0 +1,6 @@
+[server]
+port = 7000
+headless = true
+
+[theme]
+primaryColor = "#2563eb"

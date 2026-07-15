@@ -1,0 +1,288 @@
+--- 원본(수정전)
++++ 현재(수정후)
+@@ -103,6 +103,9 @@
+         # 4) 구문 추출
+         self._extract_phrases()
+ 
++        # 4-1) 나열(NPS) 첫 접속항 앞의 관형 수식어까지 NPS 범위 확장 (A안)
++        self._extend_nps_with_leading_modifier()
++
+         # 5) 정리 및 중복 제거
+         return self._deduplicate()
+ 
+@@ -714,6 +717,13 @@
+                     (self.rels[m + 1] == 'morph' and self.arcs[m + 1] - 1 <= m)
+                     or self.arcs[m] - 1 == m + 1):
+                 m += 1
++            # EC 바로 뒤에 보조용언(VX 또는 지/있/없 등)이 오면 이는 부사어 동사구가 아니라
++            # '본용언+보조용언'(예: '증후군에 시달리고 있다')이므로 VP가 담당한다 → 제외하지 않음
++            if (m + 1 < self.N
++                    and self.rels[m + 1] == 'morph'
++                    and (self._has_tag(m + 1, 'VX')
++                         or self.tokens[m + 1] in self._AUX_VERB_AFTER_EC)):
++                continue
+             if self._has_tag(m, 'EC'):
+                 self._aux_vp_after_jkb.add((k, m))
+ 
+@@ -1016,10 +1026,15 @@
+         """
+         processed = set()
+ 
+-        # 1. VP_MOD relation 기반 관형절 추출
++        # 1. 관형형 전성어미(ETM) 기반 관형절 추출
++        #    관형형 어미 ㄴ/은/는/ㄹ 등은 명사를 수식하는 관형절의 핵이다. ETM은 정의상 항상
++        #    관형형이지만 SuPar는 관형절 위치에 따라 rel을 VP_MOD/VP/NP 등으로 제각각 붙인다
++        #    (연쇄 시 마지막만 VP_MOD, '친구가 준 책'의 '준'은 NP). 따라서 ETM은 rel로 거르지
++        #    않고 아래 guard(용언 head/명사화 의존명사 등)로 비관형 용법만 배제한다.
++        #    XSV/XSA(파생접미사)는 관형절 관계(VP_MOD/VP)일 때만 취한다.
+         for i in range(self.N):
+-            # ETM/XSV/XSA이면서 VP_MOD relation을 가진 경우
+-            if not (self._has_tag(i, 'ETM') or self._has_tag(i, 'XSV') or self._has_tag(i, 'XSA')):
++            is_etm = self._has_tag(i, 'ETM')
++            if not (is_etm or self._has_tag(i, 'XSV') or self._has_tag(i, 'XSA')):
+                 continue
+ 
+             # "-고 계신" 등 보조용언 뒤 ETM을 SuPar가 NP/VP로 오분석하는 경우 — 앞이 VX면 관형절로 인정
+@@ -1028,7 +1043,7 @@
+                 and self.rels[i] in ('NP', 'VP')
+                 and self._has_tag(i - 1, 'VX')
+             )
+-            if self.rels[i] != 'VP_MOD' and not is_aux_np_misparse:
++            if not is_etm and self.rels[i] not in ('VP_MOD', 'VP') and not is_aux_np_misparse:
+                 continue
+ 
+             # VP_MOD의 head를 찾음 (ETM이 수식하는 명사/의존명사의 head)
+@@ -1038,6 +1053,16 @@
+             if etm_head_idx >= 0 and self._is_verbal(etm_head_idx):
+                 continue
+ 
++            # ETM 바로 뒤가 명사화 의존명사(것/수/바/지/데/뿐/터)면 이는 관형절이 아니라
++            # 명사절 내포절(EmC_N)의 핵이다 → 관형절 분기를 통째로 건너뛰고 _extract_emc_noun에
++            # 맡긴다. (SuPar 파스에서 ETM의 head는 '것'이 아니라 뒤의 조사/지정사를 가리키는
++            # 경우가 많아 head가 아니라 바로 다음 토큰으로 판정한다. 정답의 EmC_Adj는 모두 일반
++            # 명사(땅/상황/사람/때 등)를 수식하며 '것/수' 등 명사화 의존명사 수식 예는 없다.)
++            if (i + 1 < self.N
++                    and self._has_tag(i + 1, 'NNB')
++                    and self.tokens[i + 1] in self._NOMINAL_NNB):
++                continue
++
+             # ETM head가 의존명사(NNB)이고 그 NNB의 rel이 NP(주절 VP 소속)이면
+             # '많은 것 같다' 같은 추측 구문 내부 → AdjP 아님
+             if (etm_head_idx >= 0
+@@ -1078,36 +1103,42 @@
+                 if self._is_verbal(main_verb_idx):
+                     verb_idx = main_verb_idx
+ 
+-            # 핵어 동사의 subtree (ETM 이전 범위만)
+-            all_clause_nodes = self._get_subtree(verb_idx)
+-            all_clause_nodes.add(verb_idx)
+-            all_clause_nodes = {n for n in all_clause_nodes if n <= i}
+-
+-            # 주절 주어 어절(JX/JKS 포함) 제거 — 관형절 내부 주어는 유지
+-            # 단, 이 ETM 절보다 이전에 시작한 SubC 범위 밖의 JX/JKS 어절만 제거
+-            topic_subj_nodes: set = set()
+-            for n in list(all_clause_nodes):
+-                if self._has_any_tag(n, ('JX', 'JKS')):
+-                    eojeol_s = self._expand_eojeol_left(n)
+-                    # 해당 어절이 현재 관형절 동사보다 앞에 있고 SubC 범위에 속하지 않으면 제거
+-                    if eojeol_s < verb_idx:
+-                        topic_subj_nodes.update(range(eojeol_s, n + 1))
+-            all_clause_nodes -= topic_subj_nodes
+-
+-            if not all_clause_nodes:
+-                all_clause_nodes = {verb_idx}
+-
+-            clause_start = min(all_clause_nodes)
++            # 서술어 어절(관형절의 핵) 범위: verb_idx 어절 시작 ~ i(ETM)
++            pred_start = self._expand_eojeol_left(verb_idx)
+             clause_end = i
+ 
+-            key = (clause_start, clause_end)
++            # (1) 서술어만의 관형구는 항상 AdjP로 추출 (예: 아닌/따뜻한/좋아하는)
++            key = (pred_start, clause_end)
+             if key not in processed:
+                 processed.add(key)
+-                # 내부 논항 존재 여부에 따라 EmC_Adj vs AdjP 분기
+-                if self._has_internal_arguments(verb_idx, clause_start, clause_end):
+-                    self.spans.append((SpanLabels.EMC_ADJ, clause_start, clause_end))
+-                else:
+-                    self.spans.append((SpanLabels.ADJP, clause_start, clause_end))
++                self.spans.append((SpanLabels.ADJP, pred_start, clause_end))
++
++            # (2) 관형절 내부 논항(주어/목적어/보어/부사어) 수집 — 서술어 어절 형태소의
++            #     '논항 rel 직속 자식'과 그 subtree만 취한다. 이렇게 하면 SuPar 연쇄 파스에서
++            #     서술어 어미에 형제로 매달린 별개 관형절(rel=VP/VP_MOD)은 논항이 아니므로
++            #     자연히 배제되어(예: '따뜻한'에 '얼음이 아닌'이 섞이지 않음) 범위 오염을 막는다.
++            #     논항이 있으면 논항+서술어 전체를 EmC_Adj(관형절 내포절)로 AdjP와 중첩 추출한다.
++            #     명사형 전성어미(기/ㅁ)로 명사화된 절 논항은 VP_OBJ/VP_SBJ 등으로 붙으므로
++            #     함께 인정한다(예: '여행하기 좋은'의 목적어 '여행하기'는 VP_SBJ).
++            _ARG_RELS = {'NP_SBJ', 'NP_OBJ', 'NP_CMP', 'NP_AJT', 'AP', 'NP_CNJ',
++                         'VP_OBJ', 'VP_SBJ', 'VP_CMP', 'VP_AJT'}
++            arg_nodes: set = set()
++            for node in range(pred_start, clause_end + 1):
++                for c in self.children[node]:
++                    if c >= pred_start or self.rels[c] not in _ARG_RELS:
++                        continue
++                    # 관용구 '-ㄹ 수 있다/없다'의 '수'처럼 조사 없이 붙은 의존명사(NNB)는
++                    # 실질 논항이 아니라 문법화된 구성이므로 EmC_Adj 트리거에서 제외한다.
++                    if self._has_tag(c, 'NNB'):
++                        continue
++                    arg_nodes |= self._get_subtree(c)
++            if arg_nodes:
++                clause_start = min(min(arg_nodes), pred_start)
++                if clause_start < pred_start:
++                    ekey = (clause_start, clause_end)
++                    if ekey not in processed:
++                        processed.add(ekey)
++                        self.spans.append((SpanLabels.EMC_ADJ, clause_start, clause_end))
+ 
+         # 2. NP_MOD("의") - 명사구 + "의" 전체를 Adjectival Phrase로
+         # "의"는 JKG가 아니라 JX 태그로 나타나며, 관계는 NP_MOD
+@@ -1353,6 +1384,34 @@
+                 # 논항 없는 'V+ETM+NNB' → NP로 처리 (기존 _extract_adjectival + NP 로직과 일치)
+                 pass
+ 
++        # C) 의문형 종결어미로 명사 기능을 하는 절 → EmC_N
++        #    종결어미는 문장을 끝내는 역할 외에, 하나의 절을 이루면서 그 절이 명사처럼
++        #    문장 성분(주어/목적어/부사어)으로 쓰이게 하는 경우가 있다. 의문형 어미
++        #    (느냐/는지/을지/는가/을까 등) 뒤에 격조사가 붙어 논항으로 기능하면 명사절 내포절이다.
++        #    (예: '부부가 얼마나 서로 잘 맞춰 사느냐에 달려 있다'의 '부부가 ... 사느냐')
++        _INTERROG_END = {'느냐', '으냐', '냐', '는지', 'ᆫ지', 'ㄴ지', '은지', '을지', 'ᆯ지', 'ㄹ지',
++                         '는가', 'ᆫ가', 'ㄴ가', '은가', '을까', 'ᆯ까', 'ㄹ까'}
++        for i in range(self.N):
++            if not self._has_any_tag(i, ('EC', 'EF')):
++                continue
++            if self.tokens[i] not in _INTERROG_END:
++                continue
++            # 바로 뒤에 격조사가 붙어야 절이 문장 성분(명사절)으로 기능한다
++            mk = i + 1
++            if mk >= self.N or not self._has_any_tag(mk, ('JKB', 'JKO', 'JKS', 'JKC', 'JKG')):
++                continue
++            # 절 범위 = 격조사의 subtree에서 의문형 어미(i) 이하만 (격조사·이후 제외)
++            clause_nodes = {n for n in self._get_subtree(mk) if n <= i}
++            if not clause_nodes:
++                continue
++            start_idx = min(clause_nodes)
++            key = (start_idx, i)
++            if key in processed:
++                continue
++            processed.add(key)
++            if self._has_internal_arguments(None, start_idx, i):
++                self.spans.append((SpanLabels.EMC_N, start_idx, i))
++
+     def _extract_emc_adv(self):
+         """부사절 내포절(EmC_Adv) 추출.
+         트리거: EC이면서 rel=VP_AJT이고 내부 논항이 있는 경우.
+@@ -1405,8 +1464,12 @@
+             # 조사(JK*, JX) 또는 VCP(이다/아니다) 찾기
+             is_josa = self._has_any_tag(i, ('JKS', 'JKO', 'JKB', 'JKG', 'JKC', 'JX'))
+             is_copula = self._has_tag(i, 'VCP')  # 이다 (긍정지정사)
++            # 연결조사(과/와/나, rel=NP_CNJ) 앞의 명사(구)도 접속항 NP 후보로 본다.
++            # 정답 데이터는 관형어가 붙은 접속항(예: '소외된 계층', '오랜 세월')을 NP로 표기한다.
++            # 단순 명사 접속항은 아래 단일 형태소 억제 규칙이, 나열 전체 NP는 has_modifier 필터가 거른다.
++            is_conj = self._has_tag(i, 'JC') and self.rels[i] == 'NP_CNJ'
+ 
+-            if not is_josa and not is_copula:
++            if not is_josa and not is_copula and not is_conj:
+                 continue
+ 
+             # 조사 바로 앞이 명사인지 확인
+@@ -1532,10 +1595,24 @@
+                 # 단, xpos에 '+' 포함 시 합성어/파생어이므로 표시함
+                 if np_start == noun_end and '+' not in self.xpos[np_start]:
+                     continue
+-                # 이미 추출된 NPS 범위에 완전히 포함되는 NP는 중복이므로 제외
+-                if any(ns <= np_start and noun_end <= ne
+-                       for lbl, ns, ne in self.spans if lbl == SpanLabels.NPS):
+-                    continue
++                # NPS(명사 나열) 안의 NP 처리:
++                #   기본은 제외(나열 전체·개별 명사는 NPS가 대표). 단, 관형어(MM/관형절/의)를
++                #   품은 접속항 NP(예: '소외된 계층', '오랜 세월', '국보이었던 극락전')는
++                #   정답 데이터가 별도로 표기하므로 유지한다. 연결조사(NP_CNJ)를 품어 나열
++                #   전체를 덮는 NP는 항상 제외.
++                in_nps = any(ns <= np_start and noun_end <= ne
++                             for lbl, ns, ne in self.spans if lbl == SpanLabels.NPS)
++                if in_nps:
++                    # 관형어(MM/관형절/의)를 품은 NP만 유지한다. 나열 전체를 관형어가 수식하는
++                    # 경우(예: '구체적인 사례나 사건을')는 정답도 NP로 표기하므로 연결조사(NP_CNJ)
++                    # 포함 여부와 무관하게 유지하고, 관형어 없는 단순 나열/개별 명사는 제외한다.
++                    has_modifier = any(
++                        self._has_any_tag(k, ('MM', 'ETM', 'XSV', 'XSA'))
++                        or self.rels[k] == 'NP_MOD'
++                        for k in range(np_start, noun_end + 1)
++                    )
++                    if not has_modifier:
++                        continue
+                 self.spans.append((SpanLabels.NP, np_start, noun_end))
+ 
+     def _extract_noun_phrase_sequence(self):
+@@ -1650,6 +1727,52 @@
+             nps_end = max(nodes)
+             self.spans.append((SpanLabels.NPS, nps_start, nps_end))
+ 
++    def _extend_nps_with_leading_modifier(self):
++        """A안: 나열(NPS)의 첫 접속항 앞에 관형 수식어가 붙어 있으면 그 수식어까지 NPS 범위에
++        포함한다. NPS는 '명사구들의 나열'이므로, 명사구(NP)가 수식어를 포함하듯 첫 명사구의
++        수식어도 나열 막대 안에 든다.
++          - 관형절/관형구는 AdjP·EmC_Adj 스팬, 소유격 'X의'도 AdjP 스팬으로 이미 잡혀 있으므로
++            NPS 시작 바로 앞(nps_start-1)에서 끝나는 그 스팬들을 찾아 시작점을 왼쪽으로 당긴다.
++          - 관형 수식어가 여러 겹이면 반복해서 확장한다.
++        NPS 추출은 _extract_adjectival보다 먼저 돌지만, 이 후처리는 AdjP가 다 나온 뒤(구문 추출
++        이후)에 호출되므로 확장 근거가 되는 관형 스팬을 참조할 수 있다."""
++        # 단순 관형구(AdjP)만 확장 근거로 삼는다. 내부 논항을 가진 관형절(EmC_Adj)은 나열 전체를
++        # 밖에서 수식하는 경우가 많아(예: '제3세계에 대한 보건…') 접속항 수식으로 오인하면 안 된다.
++        adnom = [(s, e) for lbl, s, e in self.spans if lbl == SpanLabels.ADJP]
++        if not adnom:
++            return
++        nps_ranges = [(s, e) for lbl, s, e in self.spans if lbl == SpanLabels.NPS]
++        new_spans = []
++        for label, s, e in self.spans:
++            if label == SpanLabels.NPS:
++                start = s
++                while True:
++                    p = start - 1
++                    # 바로 앞 형태소가 실제 관형 수식의 끝(ETM/MM/관형격 '의')이어야 한다.
++                    # (그래야 '위해'(EC)·'자연재해란'(JX) 같은 비관형 어절을 잘못 끌어오지 않음)
++                    if p < 0 or not (self._has_tag(p, 'ETM')
++                                     or self._has_any_tag(p, ('MM', 'MMA', 'MMD', 'MMN'))
++                                     or self.tokens[p] == '의'):
++                        break
++                    cands = [a for (a, b) in adnom if b == p and a < start]
++                    if not cands:
++                        break
++                    a = min(cands)   # 가장 넓은 관형 수식어의 시작점
++                    # 수식어가 다른 나열(NPS) 안에서 시작하면 그 나열에 딸린 외부 수식어이므로 제외
++                    if any(ns <= a <= ne for (ns, ne) in nps_ranges if (ns, ne) != (s, e)):
++                        break
++                    # 수식어 바로 앞이 격조사(NP+격조사)면, 그 수식어는 자기 논항을 거느리고
++                    # 나열 전체를 밖에서 꾸미는 관형절이다(예: '제3세계에 대한 [보건…]'). 접속항
++                    # 하나에 붙은 수식어(소외된/오랜/가까운)는 앞이 격조사가 아니므로 이때만 확장.
++                    if a - 1 >= 0 and self._has_any_tag(
++                            a - 1, ('JKS', 'JKO', 'JKB', 'JKG', 'JKC', 'JX')):
++                        break
++                    start = a
++                new_spans.append((label, start, e))
++            else:
++                new_spans.append((label, s, e))
++        self.spans = new_spans
++
+     # ========================================================================
+     # 정리
+     # ========================================================================
+@@ -1665,9 +1788,15 @@
+                 seen.add(key)
+                 unique.append((label, s, e))
+ 
+-        # 같은 라벨에서 더 큰 스팬에 완전히 포함된 작은 스팬 제거
++        # 같은 라벨에서 더 큰 스팬에 완전히 포함된 작은 스팬 제거.
++        # 단 EmC_Adj(관형절 내포절)는 정답 데이터가 중첩을 유지하므로
++        # (예: '얼음이 아닌' ⊂ '얼음이 아닌 따뜻한 땅을 좋아하는') 포함관계 제거 대상에서 뺀다.
++        _NEST_OK = {SpanLabels.EMC_ADJ}
+         result = []
+         for label, s, e in unique:
++            if label in _NEST_OK:
++                result.append((label, s, e))
++                continue
+             dominated = any(
+                 label == ol and os <= s and e <= oe and (os, oe) != (s, e)
+                 for ol, os, oe in unique

@@ -1,0 +1,47 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# 가상환경
+.venv
+venv/
+
+# 비밀정보 (API 키 등)
+.env
+*.env
+
+# 개인 설정
+.claude/
+.claude_config/
+
+# 대용량 모델 (100MB 초과 포함)
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.pkl
+supar_morph_dp/
+klue_roberta_ce_listwise_llrd/
+model_3_to_1/
+
+# 대용량 데이터 / 사전
+*.xls
+*.xlsx
+gloss_dictionary/
+
+# 학습 데이터 (회사 코퍼스에서 파생 가능)
+*.conllu
+*.jsonl
+
+# 문서 (정답지·기획 등 회사 자산 포함)
+docs/
+
+# 실행 부산물
+nohup.out
+*.out
+*.log
+*.zip

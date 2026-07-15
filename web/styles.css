@@ -1,0 +1,447 @@
+/* web/styles.css
+ *
+ * visualization/renderer.py의 get_app_styles() 색상·타이포·간격 값을 그대로 가져와
+ * 순수 HTML용 클래스로 다시 짠 것. Streamlit DOM(data-testid 셀렉터, :has() 우회
+ * 등)에 의존하던 부분은 전부 제거 — 일반 마크업이라 그런 우회 자체가 필요 없다.
+ */
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&display=swap');
+
+* {
+    box-sizing: border-box;
+    word-break: keep-all;
+}
+
+html,
+body {
+    margin: 0;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f8f9fa;
+    color: #191b23;
+}
+
+.stage {
+    /* 피그마 '분석 결과' 화면(node 20-3722) 콘텐츠 컬럼 실측 폭 1552px 그대로 */
+    max-width: 1552px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+}
+
+/* ── 헤더 ── */
+.header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 40px;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.header-bar h1 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-bar h1 i {
+    height: auto;
+    width: 34px;
+    display: block;
+}
+
+.header-bar h1 svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.header-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: #434655;
+}
+
+/* ── 타이틀 ── */
+.main-title-wrap {
+    text-align: center;
+    padding: 48px 16px 40px;
+}
+
+.main-sub {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2b7fff;
+    margin-bottom: 6px;
+}
+
+.main-head {
+    font-family: 'Plus Jakarta Sans', 'Pretendard', sans-serif;
+    font-size: 34px;
+    font-weight: 700;
+    color: #101828;
+    line-height: 1.35;
+    margin: 0;
+}
+
+/* ── 입력 ── */
+.input-row {
+    position: relative;
+    margin-bottom: 8px;
+    padding: 0 12px;
+}
+
+#input-text {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    border-radius: 10px;
+    border: 1px solid #E3E6EB;
+    background: rgba(255, 255, 255, 0.24);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 2px 14px 0 rgba(0, 0, 0, 0.02);
+    border-radius: 10px;
+    padding: 12px 14px 32px;
+    font-size: 18px;
+    font-family: inherit;
+    color: #1E293B;
+
+}
+
+#input-text:hover {
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.04), 0 2px 10px 0 rgba(0, 0, 0, 0.02);
+}
+
+#input-text:focus {
+    outline: none;
+    border: 1px solid #6D9BFF;
+    background: #FFF;
+    box-shadow: 0 2px 4px 0 rgba(29, 78, 216, 0.04), 0 0 12px 0 rgba(29, 78, 216, 0.06);
+}
+
+
+.char-count {
+    position: absolute;
+    bottom: 12px;
+    right: 28px;
+    font-size: 0.9rem;
+    color: #999;
+    text-align: right;
+    display: flex;
+    align-items: center;
+}
+
+.char-count>* {
+    color: #2563EB;
+    font-weight: 600;
+}
+
+#input-section {
+    max-width: 830px;
+    margin: 0 auto;
+}
+
+.analyze-row {
+    display: flex;
+    justify-content: flex-end;
+    margin: 14px 0 0;
+}
+
+#analyze-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    width: 160px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background .15s, box-shadow .15s;
+    margin-right: 12px;
+}
+
+#analyze-btn:hover:not(:disabled) {
+    background: #0043D8;
+}
+
+#analyze-btn:active:not(:disabled) {
+    background: #0139B4;
+}
+
+#analyze-btn:disabled {
+    background: #D1D5DB;
+    color: #97A1B2;
+    cursor: not-allowed;
+}
+
+#analyze-btn:disabled path {
+    fill: #97A1B2;
+    stroke: #97A1B2;
+}
+
+/* ── 예시 문장 ── */
+.example-label {
+    display: flex;
+    gap: 10px;
+    font-size: 1rem;
+    margin: 16px 0 8px;
+    color: #999;
+    font-weight: 500;
+    line-height: 140%;
+
+}
+
+
+
+.example-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.example-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    color: #374151;
+    font-size: 0.86rem;
+    padding: 8px 16px;
+    text-align: left;
+    white-space: pre-wrap;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.example-card:hover {
+    border: 1px solid #C9C9C9;
+    background: #F7F7F7;
+    color: #565E6E;
+}
+
+.example-card:active {
+    border: 1px solid #BEDBFF;
+    background: #E3EFFF;
+    color: #155DFC;
+}
+
+/* ── 로딩 스피너 ── */
+.spinner-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 40px;
+    gap: 12px;
+}
+
+.spinner-icon {
+    width: 28px;
+    height: 28px;
+    background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2228%22%20height%3D%2228%22%20viewBox%3D%220%200%2028%2028%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20opacity%3D%220.3%22%20d%3D%22M28%2014C28%2021.732%2021.732%2028%2014%2028C6.26801%2028%200%2021.732%200%2014C0%206.26801%206.26801%200%2014%200C21.732%200%2028%206.26801%2028%2014ZM4.2%2014C4.2%2019.4124%208.58761%2023.8%2014%2023.8C19.4124%2023.8%2023.8%2019.4124%2023.8%2014C23.8%208.58761%2019.4124%204.2%2014%204.2C8.58761%204.2%204.2%208.58761%204.2%2014Z%22%20fill%3D%22%232B7FFF%22/%3E%3Cpath%20d%3D%22M25.9%2014C27.0598%2014%2028.0161%2013.0546%2027.8428%2011.9079C27.6737%2010.7891%2027.3693%209.69249%2026.9343%208.64243C26.2307%206.94387%2025.1995%205.40053%2023.8995%204.1005C22.5995%202.80048%2021.0561%201.76925%2019.3576%201.06569C18.3075%200.63074%2017.2109%200.326285%2016.0921%200.157207C14.9454%20-0.0161134%2014%200.940202%2014%202.1C14%203.2598%2014.9507%204.17751%2016.084%204.42414C16.6525%204.54787%2017.2102%204.72226%2017.7503%204.94598C18.9393%205.43848%2020.0196%206.16034%2020.9296%207.07035C21.8397%207.98037%2022.5615%209.06071%2023.054%2010.2497C23.2777%2010.7898%2023.4521%2011.3475%2023.5759%2011.916C23.8225%2013.0493%2024.7402%2014%2025.9%2014Z%22%20fill%3D%22%232B7FFF%22/%3E%3C/svg%3E");
+    background-size: 28px 28px;
+    background-repeat: no-repeat;
+    background-position: center;
+    animation: figma-spin 0.9s linear infinite;
+}
+
+@keyframes figma-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner-text {
+    font-size: 22px;
+    font-weight: 500;
+    color: #4a5565;
+}
+
+/* ── 결과 ── */
+.result-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 40px;
+
+}
+
+.nav-btn {
+    border-radius: 999px;
+    border: 1px solid #DDD;
+    background: #FFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    width: 48px;
+    aspect-ratio: 1/1;
+
+    padding: 0;
+}
+.nav-btn svg{width: 100%;height: 100%;object-fit: contain;}
+
+.nav-btn:hover {
+    border: 1px solid #C9C9C9;
+    background: #F7F7F7;
+}
+
+.nav-btn:active {
+    border: 1px solid #BEDBFF;
+    background: #E3EFFF;
+}
+
+.nav-btn:active path {
+    stroke: #155DFC;
+}
+
+.nav-btn:disabled {
+    visibility: hidden;
+}
+
+.result-card {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 32px;
+    position: relative;
+}
+
+.result-top {
+    position: relative;
+    margin-bottom: 4px;
+}
+
+.result-counter {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 16px;
+    color: #999999;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.74;
+}
+
+.result-counter b {
+    color: #2563EB;
+    font-weight: 600;
+}
+
+.result-sentence {
+    font-size: 18px;
+    font-weight: 700;
+    color: #191b23;
+    line-height: 32px;
+    margin-bottom: 4px;
+    padding-right: 60px;
+}
+
+.result-roman {
+    font-size: 14px;
+    color: #999999;
+    margin-bottom: 12px;
+}
+
+.tts-frame {
+    border: none;
+    width: 220px;
+    height: 44px;
+    display: block;
+    margin-top: 4px;
+}
+
+.result-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 20px 0;
+    border: none;
+}
+
+.viz-frame {
+    border: none;
+    width: 100%;
+    display: block;
+}
+
+/* 피그마 스펙: 가운데 정렬 이탤릭이 아니라 아이콘 + 좌측 정렬 텍스트 */
+.result-trans {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 16px;
+    color: #4a5565;
+    line-height: 1.5;
+    margin-top: 22px;
+}
+
+.result-trans svg {
+    flex: none;
+    margin-top: 3px;
+    color: #9ca3af;
+}
+
+.result-trans span {
+    flex: 1;
+}
+
+.reset-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+}
+
+/* 피그마 '처음으로' 버튼 스펙: 흰 배경 + 파란 테두리/글자, width 240 height 48, 아이콘 포함 */
+#reset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #fff;
+    color: #155DFC;
+    border: 1px solid #155DFC;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    width: 240px;
+    height: 48px;
+    cursor: pointer;
+}
+
+#reset-btn:hover {
+    background: #F7F7F7;
+ border: 1px solid #0043D8;
+    color: #0043D8;
+}
+#reset-btn:hover path{
+    stroke: #0043D8;
+}
+#reset-btn:active{
+color: #0139B4;
+border: 1px solid #0139B4;
+background: #E3EFFF;
+}
+#reset-btn:active path{
+    stroke: #0139B4;
+}
+
+
+[hidden] {
+    display: none !important;
+}
+
+/* ── 반응형 ── */
+@media  (max-width: 1024px) {
+    .header-bar{ padding: 14px 16px;}
+.stage{padding: 0 16px 40px;}
+.main-title-wrap{padding: 48px 0 40px;}
+.result-card{padding: 16px;}
+}
