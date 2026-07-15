@@ -439,6 +439,13 @@ class MorphemeSpanExtractorKLUE:
                 continue  # 부사절 형성 EC(이렇게, 명확하게 등) → SubC 아님
             if self.rels[i] == 'VP' and self.tokens[i] not in _SUBC_EC:
                 continue
+            # rel=morph인 EC 중, 바로 다음 형태소가 보조용언(VX/XSV)이면 절 경계가 아니라
+            # 같은 VP 체인 내부 연결(예: 실천하여 나가다, 전하여 지다)이므로 SubC 후보에서 제외.
+            # (다음이 VX/XSV가 아니면, 예: '불타 없어졌으며,' 처럼 진짜 절 경계일 수 있으므로 유지)
+            if (self.rels[i] == 'morph'
+                    and i + 1 < self.N
+                    and self._has_any_tag(i + 1, ('VX', 'XSV'))):
+                continue
             # 보조용언 연결 EC(아/어 + 지다/있다/없다 등)는 같은 VP 내부 연결이므로
             # 그 자체로 별도 SubC 경계가 되지 않음 (불타 + 아 + 없어 + 지 + 었 + 으며)
             if (self.tokens[i] in ('아', '어')
