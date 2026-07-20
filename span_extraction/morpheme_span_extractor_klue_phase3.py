@@ -438,7 +438,43 @@ class MorphemeSpanExtractorKLUE:
             if self.rels[i] == 'VP_AJT':
                 continue  # 부사절 형성 EC(이렇게, 명확하게 등) → SubC 아님
             if self.rels[i] == 'VP' and self.tokens[i] not in _SUBC_EC:
-                continue
+                # 단독 아/어(rel=VP)는 원래 전부 제외였으나, 다음 용언 사이에 논항이
+                # 끼어 있으면(=새 절이 시작될 가능성) 후보로 유지한다 (예: '받들어 [활동을] 실천하다').
+                # 바로 다음이 용언이면(예: '맞춰 사느냐') 여전히 VP 내부 연결로 보고 제외.
+                has_arg_before_next_verb = False
+                # '이에 따라'류(JKB+동사+EC 관용적 부사어 동사구, '인하여/대하여'와 동일 패턴)는
+                # 이미 _scan_aux_vp_after_jkb()가 사전 식별해뒀으므로 그대로 재사용해 제외한다.
+                is_aux_vp_after_jkb = any(k <= i <= m for k, m in self._aux_vp_after_jkb)
+                if self.tokens[i] in ('아', '어') and not is_aux_vp_after_jkb:
+                    head_i = (self.arcs[i] - 1) if self.arcs[i] > 0 else self.N
+                    # 이 EC의 직접 head가 ETM(관형절 핵)이면, 이미 다른 절(관형절/명사절)
+                    # 안에 내포된 연결(예: '전문가를 찾아가 상담을 받는'의 '찾아가')이므로
+                    # 최상위 SubC 후보에서 제외한다.
+                    head_is_etm = head_i < self.N and self._has_tag(head_i, 'ETM')
+                    # head_i 하나만 보지 않고, 거기서부터 문장 ROOT까지 head 사슬을 계속
+                    # 따라가며 중간에 ETM이 하나라도 있으면(=결국 어딘가의 관형절 안으로
+                    # 흡수됨) 제외한다. (최대 50홉으로 순환 방지)
+                    chain_has_etm = False
+                    cur = head_i
+                    for _ in range(50):
+                        if cur < 0 or cur >= self.N:
+                            break
+                        if self._has_tag(cur, 'ETM'):
+                            chain_has_etm = True
+                            break
+                        nxt = self.arcs[cur] - 1 if self.arcs[cur] > 0 else -1
+                        if nxt == cur or nxt < 0:
+                            break
+                        cur = nxt
+                    if not head_is_etm and not chain_has_etm:
+                        for j in range(i + 1, head_i):
+                            # 논항이 진짜 다음 서술어(head_i)의 직속 자식이어야 인정한다.
+                            # (범위 안에 있다는 것만으로는 다른 곳에 딸린 논항일 수 있음)
+                            if self.rels[j] == 'NP_OBJ' and (self.arcs[j] - 1) == head_i:
+                                has_arg_before_next_verb = True
+                                break
+                if not has_arg_before_next_verb:
+                    continue
             # rel=morph인 EC 중, 바로 다음 형태소가 보조용언(VX/XSV)이면 절 경계가 아니라
             # 같은 VP 체인 내부 연결(예: 실천하여 나가다, 전하여 지다)이므로 SubC 후보에서 제외.
             # (다음이 VX/XSV가 아니면, 예: '불타 없어졌으며,' 처럼 진짜 절 경계일 수 있으므로 유지)
