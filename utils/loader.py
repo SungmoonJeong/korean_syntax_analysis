@@ -25,9 +25,11 @@ from supar import Parser
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from config import KIWI_USER_WORDS
+from services.gemini_client import GeminiHandler
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 @contextmanager
@@ -77,6 +79,14 @@ def load_ce_model(path_model, path_tok):
 @st.cache_resource(show_spinner=True)
 def load_openai_client():
     return OpenAI(api_key=OPENAI_API_KEY)
+
+
+# ============================================================================
+# gemini loader (고유명사 NNP 판별용)
+# ============================================================================
+@st.cache_resource(show_spinner=True)
+def load_gemini_handler():
+    return GeminiHandler(GEMINI_API_KEY)
 
 
 # ============================================================================

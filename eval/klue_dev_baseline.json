@@ -1,0 +1,466 @@
+{
+  "n_sentences": 2000,
+  "clean_segmentation_sentences": 784,
+  "clean_segmentation_rate": 0.392,
+  "tagging_accuracy": {
+    "aligned_tokens": 47957,
+    "correct": 45724,
+    "accuracy": 0.953437454386221,
+    "unaligned_gold_tokens": 3293
+  },
+  "uas": 0.9252546789860223,
+  "las": 0.8795309168443497,
+  "uas_den": 16884,
+  "pattern_stats": [
+    {
+      "pattern": "나",
+      "freq": 71,
+      "errors": 4
+    },
+    {
+      "pattern": "는데",
+      "freq": 23,
+      "errors": 2
+    },
+    {
+      "pattern": "랑",
+      "freq": 11,
+      "errors": 2
+    },
+    {
+      "pattern": "서",
+      "freq": 13,
+      "errors": 1
+    },
+    {
+      "pattern": "다가",
+      "freq": 18,
+      "errors": 0
+    },
+    {
+      "pattern": "다니",
+      "freq": 17,
+      "errors": 0
+    },
+    {
+      "pattern": "든지",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "pattern": "라고",
+      "freq": 27,
+      "errors": 0
+    },
+    {
+      "pattern": "라니",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "pattern": "란",
+      "freq": 4,
+      "errors": 0
+    },
+    {
+      "pattern": "려고",
+      "freq": 3,
+      "errors": 0
+    },
+    {
+      "pattern": "보고",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "pattern": "야",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "pattern": "요",
+      "freq": 12,
+      "errors": 0
+    }
+  ],
+  "homograph_stats": [
+    {
+      "base": "주",
+      "tag": "VV",
+      "freq": 12,
+      "errors": 2
+    },
+    {
+      "base": "적",
+      "tag": "VV",
+      "freq": 3,
+      "errors": 1
+    },
+    {
+      "base": "이르",
+      "tag": "VV",
+      "freq": 5,
+      "errors": 1
+    },
+    {
+      "base": "강",
+      "tag": "NNG",
+      "freq": 1,
+      "errors": 1
+    },
+    {
+      "base": "주",
+      "tag": "NNG",
+      "freq": 8,
+      "errors": 1
+    },
+    {
+      "base": "들",
+      "tag": "VV",
+      "freq": 22,
+      "errors": 1
+    },
+    {
+      "base": "걷",
+      "tag": "VV",
+      "freq": 16,
+      "errors": 0
+    },
+    {
+      "base": "걸",
+      "tag": "VV",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "base": "적",
+      "tag": "VA",
+      "freq": 3,
+      "errors": 0
+    },
+    {
+      "base": "종",
+      "tag": "NNG",
+      "freq": 3,
+      "errors": 0
+    },
+    {
+      "base": "길",
+      "tag": "NNG",
+      "freq": 11,
+      "errors": 0
+    },
+    {
+      "base": "이르",
+      "tag": "VA",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "철도",
+      "tag": "NNG",
+      "freq": 4,
+      "errors": 0
+    },
+    {
+      "base": "강도",
+      "tag": "NNG",
+      "freq": 4,
+      "errors": 0
+    },
+    {
+      "base": "낫",
+      "tag": "VA",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "base": "달",
+      "tag": "VV",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "base": "세",
+      "tag": "VA",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "싸",
+      "tag": "VA",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "base": "쓰",
+      "tag": "VV",
+      "freq": 24,
+      "errors": 0
+    },
+    {
+      "base": "정하",
+      "tag": "VV",
+      "freq": 3,
+      "errors": 0
+    },
+    {
+      "base": "강하",
+      "tag": "VA",
+      "freq": 6,
+      "errors": 0
+    },
+    {
+      "base": "지나치",
+      "tag": "VA",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "base": "익",
+      "tag": "VV",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "재",
+      "tag": "VV",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "추가",
+      "tag": "NNG",
+      "freq": 8,
+      "errors": 0
+    },
+    {
+      "base": "화",
+      "tag": "NNG",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "귀",
+      "tag": "NNG",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "성",
+      "tag": "NNG",
+      "freq": 5,
+      "errors": 0
+    },
+    {
+      "base": "위",
+      "tag": "NNG",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "base": "창의",
+      "tag": "NNG",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "창",
+      "tag": "NNG",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "정도",
+      "tag": "NNG",
+      "freq": 53,
+      "errors": 0
+    },
+    {
+      "base": "정",
+      "tag": "NNG",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "base": "회의",
+      "tag": "NNG",
+      "freq": 5,
+      "errors": 0
+    },
+    {
+      "base": "논의",
+      "tag": "NNG",
+      "freq": 4,
+      "errors": 0
+    },
+    {
+      "base": "합의",
+      "tag": "NNG",
+      "freq": 7,
+      "errors": 0
+    },
+    {
+      "base": "주의",
+      "tag": "NNG",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "속도",
+      "tag": "NNG",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "base": "속",
+      "tag": "NNG",
+      "freq": 13,
+      "errors": 0
+    },
+    {
+      "base": "불만",
+      "tag": "NNG",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "base": "불",
+      "tag": "NNG",
+      "freq": 10,
+      "errors": 0
+    },
+    {
+      "base": "별",
+      "tag": "NNG",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "풀이",
+      "tag": "NNG",
+      "freq": 5,
+      "errors": 0
+    },
+    {
+      "base": "풀",
+      "tag": "NNG",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "편의",
+      "tag": "NNG",
+      "freq": 10,
+      "errors": 0
+    },
+    {
+      "base": "편",
+      "tag": "NNB",
+      "freq": 14,
+      "errors": 0
+    },
+    {
+      "base": "복도",
+      "tag": "NNG",
+      "freq": 3,
+      "errors": 0
+    },
+    {
+      "base": "복",
+      "tag": "NNG",
+      "freq": 1,
+      "errors": 0
+    },
+    {
+      "base": "문의",
+      "tag": "NNG",
+      "freq": 3,
+      "errors": 0
+    },
+    {
+      "base": "문",
+      "tag": "NNG",
+      "freq": 8,
+      "errors": 0
+    },
+    {
+      "base": "정신",
+      "tag": "NNG",
+      "freq": 5,
+      "errors": 0
+    },
+    {
+      "base": "정치",
+      "tag": "NNG",
+      "freq": 9,
+      "errors": 0
+    },
+    {
+      "base": "듣",
+      "tag": "VV",
+      "freq": 12,
+      "errors": 0
+    },
+    {
+      "base": "나",
+      "tag": "NP",
+      "freq": 9,
+      "errors": 0
+    },
+    {
+      "base": "가",
+      "tag": "VV",
+      "freq": 69,
+      "errors": 0
+    },
+    {
+      "base": "사",
+      "tag": "VV",
+      "freq": 5,
+      "errors": 0
+    },
+    {
+      "base": "살",
+      "tag": "VV",
+      "freq": 10,
+      "errors": 0
+    },
+    {
+      "base": "나",
+      "tag": "VV",
+      "freq": 24,
+      "errors": 0
+    },
+    {
+      "base": "줄",
+      "tag": "VV",
+      "freq": 2,
+      "errors": 0
+    },
+    {
+      "base": "길",
+      "tag": "VA",
+      "freq": 4,
+      "errors": 0
+    },
+    {
+      "base": "거치",
+      "tag": "VV",
+      "freq": 3,
+      "errors": 0
+    },
+    {
+      "base": "끌",
+      "tag": "VV",
+      "freq": 8,
+      "errors": 0
+    },
+    {
+      "base": "풀",
+      "tag": "VV",
+      "freq": 2,
+      "errors": 0
+    }
+  ]
+}

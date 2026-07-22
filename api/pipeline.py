@@ -29,6 +29,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import core.analyzer as analyzer
 import services.glossing as glossing
 import services.openai_client as openai_client
+import services.gemini_client as gemini_client
 import visualization.renderer as renderer
 from config import KIWI_USER_WORDS, POS_ENG_MAP, device_ce
 from span_extraction.morpheme_span_extractor_klue_phase3 import (
@@ -57,6 +58,7 @@ EXAMPLE_SENTENCES = [
 
 load_dotenv(PROJECT_ROOT / ".env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 # ============================================================================
@@ -106,11 +108,12 @@ GLOSS_DICT: dict = {}
 CE_TOK = None
 CE_MODEL = None
 AI_HANDLER: "openai_client.OpenAIHandler | None" = None
+GEMINI_HANDLER: "gemini_client.GeminiHandler | None" = None
 
 
 def load_all_resources() -> None:
     """무거운 리소스를 프로세스당 1회 로드한다 (FastAPI lifespan에서 호출)."""
-    global PARSER, KIWI, GLOSS_DICT, CE_TOK, CE_MODEL, AI_HANDLER
+    global PARSER, KIWI, GLOSS_DICT, CE_TOK, CE_MODEL, AI_HANDLER, GEMINI_HANDLER
 
     print("[pipeline] SuPar 파서 + Kiwi 로딩 중...")
     PARSER, KIWI = _load_resources(SUPAR_MODEL_PATH)
@@ -118,6 +121,9 @@ def load_all_resources() -> None:
     print("[pipeline] OpenAI client 로딩 중...")
     client = OpenAI(api_key=OPENAI_API_KEY)
     AI_HANDLER = openai_client.OpenAIHandler(client)
+
+    print("[pipeline] Gemini handler 로딩 중...")
+    GEMINI_HANDLER = gemini_client.GeminiHandler(GEMINI_API_KEY)
 
     print("[pipeline] gloss_dict.pkl 로딩 중...")
     try:
@@ -146,7 +152,10 @@ def split_sentences(text: str) -> list[str]:
 
 def run_analysis(text: str) -> dict:
     """단일 문장을 분석하여 결과 dict 반환 (main.py:run_analysis와 동일 로직)"""
-    tokens, xpos, spans_off, lemmas = analyzer.kiwi_morphs(KIWI, text)
+    # 고유명사(NNP) 판별: Kiwi 분석 전에 Gemini로 스팬을 뽑아 pretokenized로 고정.
+    # 실패해도 빈 리스트라 원본 Kiwi 분석 그대로 진행됨(파이프라인 안 막힘).
+    nnp_spans = GEMINI_HANDLER.detect_nnp(text)
+    tokens, xpos, spans_off, lemmas = analyzer.kiwi_morphs(KIWI, text, pretokenized=nnp_spans)
     words_m, upos_m, arcs_m, rels_m = analyzer.parse_dep(PARSER, tokens)
 
     pos_eng_for_view = [

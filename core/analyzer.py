@@ -10,9 +10,17 @@ from supar import Parser
 # ============================================================================
 # 1. 형태소 분석 및 의존구문 분석
 # ============================================================================
-def kiwi_morphs(kiwi, text: str):
-    """Kiwi morph tokenizer"""
-    res = kiwi.analyze(text, top_n=1)[0]
+def kiwi_morphs(kiwi, text: str, pretokenized=None):
+    """Kiwi morph tokenizer
+
+    pretokenized: [(start, end, tag), ...] — 주어지면 그 구간을 지정된 품사로
+    고정한다(예: services.gemini_client.GeminiHandler.detect_nnp가 찾은 고유명사
+    스팬). 없으면 Kiwi 기본 분석 그대로.
+    """
+    kwargs = {"top_n": 1}
+    if pretokenized:
+        kwargs["pretokenized"] = pretokenized
+    res = kiwi.analyze(text, **kwargs)[0]
     morphs = res[0] if isinstance(res, tuple) else res
 
     tokens, xpos, spans, lemmas = [], [], [], []

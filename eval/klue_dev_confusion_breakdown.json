@@ -1,0 +1,791 @@
+{
+  "confusion": [
+    {
+      "gold": "SS",
+      "pred": "SSC",
+      "count": 424,
+      "examples": [
+        "’",
+        "'",
+        ")",
+        "'",
+        "'"
+      ]
+    },
+    {
+      "gold": "SS",
+      "pred": "SSO",
+      "count": 416,
+      "examples": [
+        "'",
+        "'",
+        "(",
+        "'",
+        "'"
+      ]
+    },
+    {
+      "gold": "MMD",
+      "pred": "MM",
+      "count": 201,
+      "examples": [
+        "전",
+        "이",
+        "이",
+        "이",
+        "그"
+      ]
+    },
+    {
+      "gold": "MMN",
+      "pred": "MM",
+      "count": 196,
+      "examples": [
+        "첫",
+        "총",
+        "모든",
+        "두",
+        "한"
+      ]
+    },
+    {
+      "gold": "NNP",
+      "pred": "NNG",
+      "count": 163,
+      "examples": [
+        "예체능",
+        "카투사",
+        "셀카",
+        "패브릭",
+        "미옥"
+      ]
+    },
+    {
+      "gold": "NNG",
+      "pred": "NNP",
+      "count": 122,
+      "examples": [
+        "한국어",
+        "언팩",
+        "시리얼",
+        "시리얼",
+        "볼프"
+      ]
+    },
+    {
+      "gold": "VV",
+      "pred": "VA",
+      "count": 108,
+      "examples": [
+        "있",
+        "있",
+        "있",
+        "있",
+        "있"
+      ]
+    },
+    {
+      "gold": "JC",
+      "pred": "JKB",
+      "count": 42,
+      "examples": [
+        "와",
+        "와",
+        "과",
+        "과",
+        "와"
+      ]
+    },
+    {
+      "gold": "MMA",
+      "pred": "MM",
+      "count": 37,
+      "examples": [
+        "고",
+        "약",
+        "별",
+        "약",
+        "각"
+      ]
+    },
+    {
+      "gold": "NNG",
+      "pred": "NNB",
+      "count": 36,
+      "examples": [
+        "동",
+        "내",
+        "군",
+        "식",
+        "법"
+      ]
+    },
+    {
+      "gold": "VA",
+      "pred": "VV",
+      "count": 35,
+      "examples": [
+        "있",
+        "있",
+        "있",
+        "있",
+        "있"
+      ]
+    },
+    {
+      "gold": "MAG",
+      "pred": "NNG",
+      "count": 33,
+      "examples": [
+        "통상",
+        "자진",
+        "전부",
+        "현재",
+        "망연자실"
+      ]
+    },
+    {
+      "gold": "VX",
+      "pred": "VV",
+      "count": 28,
+      "examples": [
+        "내",
+        "가",
+        "치",
+        "가",
+        "나오"
+      ]
+    },
+    {
+      "gold": "XSV",
+      "pred": "VV",
+      "count": 25,
+      "examples": [
+        "하",
+        "되",
+        "하",
+        "하",
+        "되"
+      ]
+    },
+    {
+      "gold": "SS",
+      "pred": "SO",
+      "count": 24,
+      "examples": [
+        "-",
+        "-",
+        "-",
+        "-",
+        "-"
+      ]
+    },
+    {
+      "gold": "NNB",
+      "pred": "NNG",
+      "count": 20,
+      "examples": [
+        "급",
+        "부",
+        "달",
+        "루피",
+        "등"
+      ]
+    },
+    {
+      "gold": "NNG",
+      "pred": "MAG",
+      "count": 18,
+      "examples": [
+        "만약",
+        "최근",
+        "오늘",
+        "결국",
+        "최근"
+      ]
+    },
+    {
+      "gold": "VV",
+      "pred": "XSV",
+      "count": 16,
+      "examples": [
+        "받",
+        "받",
+        "받",
+        "하",
+        "하"
+      ]
+    },
+    {
+      "gold": "JKB",
+      "pred": "XSN",
+      "count": 13,
+      "examples": [
+        "께",
+        "께",
+        "께",
+        "께",
+        "께"
+      ]
+    },
+    {
+      "gold": "XSV",
+      "pred": "XSA",
+      "count": 13,
+      "examples": [
+        "하",
+        "하",
+        "하",
+        "하",
+        "하"
+      ]
+    },
+    {
+      "gold": "EF",
+      "pred": "EC",
+      "count": 12,
+      "examples": [
+        "다",
+        "라",
+        "어",
+        "는데",
+        "ㅂ니다"
+      ]
+    },
+    {
+      "gold": "NP",
+      "pred": "MM",
+      "count": 12,
+      "examples": [
+        "이",
+        "이",
+        "아무",
+        "이",
+        "모"
+      ]
+    },
+    {
+      "gold": "XSN",
+      "pred": "NNG",
+      "count": 10,
+      "examples": [
+        "가량",
+        "가량",
+        "인",
+        "간",
+        "가량"
+      ]
+    },
+    {
+      "gold": "NNG",
+      "pred": "XSN",
+      "count": 10,
+      "examples": [
+        "꼴",
+        "산",
+        "상",
+        "형",
+        "가량"
+      ]
+    },
+    {
+      "gold": "NNG",
+      "pred": "XR",
+      "count": 10,
+      "examples": [
+        "유명",
+        "공교",
+        "미약",
+        "적당",
+        "용이"
+      ]
+    },
+    {
+      "gold": "JKB",
+      "pred": "JC",
+      "count": 10,
+      "examples": [
+        "과",
+        "과",
+        "와",
+        "과",
+        "와"
+      ]
+    },
+    {
+      "gold": "ETN",
+      "pred": "EF",
+      "count": 10,
+      "examples": [
+        "ㅁ",
+        "음",
+        "음",
+        "ㅁ",
+        "ㅁ"
+      ]
+    },
+    {
+      "gold": "EC",
+      "pred": "JKB",
+      "count": 9,
+      "examples": [
+        "에",
+        "에",
+        "에",
+        "에",
+        "에"
+      ]
+    },
+    {
+      "gold": "VV",
+      "pred": "VX",
+      "count": 8,
+      "examples": [
+        "하",
+        "놓",
+        "주",
+        "보",
+        "만들"
+      ]
+    },
+    {
+      "gold": "NNB",
+      "pred": "XSN",
+      "count": 8,
+      "examples": [
+        "께",
+        "분",
+        "대",
+        "분",
+        "간"
+      ]
+    },
+    {
+      "gold": "XSA",
+      "pred": "XSV",
+      "count": 7,
+      "examples": [
+        "하",
+        "하",
+        "하",
+        "하",
+        "하"
+      ]
+    },
+    {
+      "gold": "EC",
+      "pred": "EF",
+      "count": 7,
+      "examples": [
+        "ㄴ다",
+        "ㄴ다",
+        "여",
+        "여",
+        "다"
+      ]
+    },
+    {
+      "gold": "XPN",
+      "pred": "NNG",
+      "count": 6,
+      "examples": [
+        "고도",
+        "생",
+        "무",
+        "디",
+        "비"
+      ]
+    },
+    {
+      "gold": "VV",
+      "pred": "XSA",
+      "count": 6,
+      "examples": [
+        "하",
+        "하",
+        "하",
+        "하",
+        "하"
+      ]
+    },
+    {
+      "gold": "XPN",
+      "pred": "NNP",
+      "count": 5,
+      "examples": [
+        "고",
+        "최",
+        "미",
+        "허니",
+        "정"
+      ]
+    },
+    {
+      "gold": "JKS",
+      "pred": "VV",
+      "count": 5,
+      "examples": [
+        "가",
+        "가",
+        "가",
+        "가",
+        "가"
+      ]
+    },
+    {
+      "gold": "SS",
+      "pred": "SW",
+      "count": 5,
+      "examples": [
+        "`",
+        "`",
+        "`",
+        "`",
+        "`"
+      ]
+    },
+    {
+      "gold": "JX",
+      "pred": "NNB",
+      "count": 5,
+      "examples": [
+        "만",
+        "만",
+        "만",
+        "만",
+        "만"
+      ]
+    },
+    {
+      "gold": "XSN",
+      "pred": "NNB",
+      "count": 5,
+      "examples": [
+        "식",
+        "간",
+        "간",
+        "쯤",
+        "분"
+      ]
+    },
+    {
+      "gold": "NNG",
+      "pred": "MM",
+      "count": 4,
+      "examples": [
+        "전",
+        "올",
+        "주",
+        "본"
+      ]
+    },
+    {
+      "gold": "SW",
+      "pred": "SL",
+      "count": 4,
+      "examples": [
+        "km",
+        "km",
+        "cm",
+        "cm"
+      ]
+    },
+    {
+      "gold": "VV",
+      "pred": "NNG",
+      "count": 4,
+      "examples": [
+        "패",
+        "흐무러지",
+        "스위",
+        "사워"
+      ]
+    },
+    {
+      "gold": "ETM",
+      "pred": "JX",
+      "count": 4,
+      "examples": [
+        "는",
+        "는",
+        "는",
+        "는"
+      ]
+    },
+    {
+      "gold": "MAG",
+      "pred": "MAJ",
+      "count": 4,
+      "examples": [
+        "또한",
+        "또한",
+        "또한",
+        "및"
+      ]
+    },
+    {
+      "gold": "NNG",
+      "pred": "IC",
+      "count": 4,
+      "examples": [
+        "강추",
+        "강추",
+        "강추",
+        "강추"
+      ]
+    },
+    {
+      "gold": "JX",
+      "pred": "NNG",
+      "count": 4,
+      "examples": [
+        "도",
+        "도",
+        "도",
+        "도"
+      ]
+    },
+    {
+      "gold": "NP",
+      "pred": "NNB",
+      "count": 3,
+      "examples": [
+        "이",
+        "이",
+        "이"
+      ]
+    },
+    {
+      "gold": "JKS",
+      "pred": "MM",
+      "count": 3,
+      "examples": [
+        "이",
+        "이",
+        "이"
+      ]
+    },
+    {
+      "gold": "SP",
+      "pred": "SW",
+      "count": 3,
+      "examples": [
+        "ㆍ",
+        "ㆍ",
+        "ㆍ"
+      ]
+    },
+    {
+      "gold": "NNG",
+      "pred": "JX",
+      "count": 3,
+      "examples": [
+        "도",
+        "도",
+        "도"
+      ]
+    }
+  ],
+  "unaligned": [
+    {
+      "form": "어",
+      "count": 160
+    },
+    {
+      "form": "ㄴ",
+      "count": 101
+    },
+    {
+      "form": "이",
+      "count": 70
+    },
+    {
+      "form": "지",
+      "count": 69
+    },
+    {
+      "form": "날",
+      "count": 63
+    },
+    {
+      "form": "아",
+      "count": 49
+    },
+    {
+      "form": "요",
+      "count": 47
+    },
+    {
+      "form": "가",
+      "count": 41
+    },
+    {
+      "form": "하",
+      "count": 40
+    },
+    {
+      "form": ".",
+      "count": 39
+    },
+    {
+      "form": "아요",
+      "count": 38
+    },
+    {
+      "form": "들",
+      "count": 37
+    },
+    {
+      "form": "깨끗하",
+      "count": 37
+    },
+    {
+      "form": "알리",
+      "count": 32
+    },
+    {
+      "form": "나",
+      "count": 31
+    },
+    {
+      "form": "지나",
+      "count": 30
+    },
+    {
+      "form": "어요",
+      "count": 28
+    },
+    {
+      "form": "역",
+      "count": 27
+    },
+    {
+      "form": "오",
+      "count": 25
+    },
+    {
+      "form": "것",
+      "count": 23
+    },
+    {
+      "form": "시",
+      "count": 20
+    },
+    {
+      "form": "못",
+      "count": 19
+    },
+    {
+      "form": "맛",
+      "count": 19
+    },
+    {
+      "form": "해",
+      "count": 18
+    },
+    {
+      "form": "집",
+      "count": 18
+    },
+    {
+      "form": "훌륭하",
+      "count": 17
+    },
+    {
+      "form": "구",
+      "count": 16
+    },
+    {
+      "form": "있",
+      "count": 15
+    },
+    {
+      "form": "달",
+      "count": 15
+    },
+    {
+      "form": "네",
+      "count": 15
+    },
+    {
+      "form": "제",
+      "count": 15
+    },
+    {
+      "form": "깔끔하",
+      "count": 15
+    },
+    {
+      "form": "일",
+      "count": 14
+    },
+    {
+      "form": "었",
+      "count": 14
+    },
+    {
+      "form": "내",
+      "count": 13
+    },
+    {
+      "form": "한",
+      "count": 13
+    },
+    {
+      "form": "보",
+      "count": 13
+    },
+    {
+      "form": "7",
+      "count": 13
+    },
+    {
+      "form": "지하철",
+      "count": 13
+    },
+    {
+      "form": "1",
+      "count": 12
+    },
+    {
+      "form": "기",
+      "count": 12
+    },
+    {
+      "form": "어서",
+      "count": 12
+    },
+    {
+      "form": "ㄹ",
+      "count": 11
+    },
+    {
+      "form": "돌",
+      "count": 11
+    },
+    {
+      "form": "선",
+      "count": 11
+    },
+    {
+      "form": "-",
+      "count": 11
+    },
+    {
+      "form": "전",
+      "count": 11
+    },
+    {
+      "form": "찾",
+      "count": 11
+    },
+    {
+      "form": "성",
+      "count": 10
+    },
+    {
+      "form": "길",
+      "count": 10
+    }
+  ]
+}
