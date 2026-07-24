@@ -66,6 +66,7 @@ def run_analysis(text, parser, kiwi, gloss_dict, ce_tok, ce_model,
         ce_model=ce_model,
         use_llm=USE_LLM,
         ai_handler=ai_handler,
+        kiwi=kiwi,
     )
     gloss_texts = [(o.get("gloss") or "") for o in outs]
 

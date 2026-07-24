@@ -15,6 +15,13 @@ from google.genai import types
 GEMINI_MODEL = "gemini-flash-latest"
 CONFIDENCE_THRESHOLD = 0.80
 
+# 이름 뒤에 붙는 호칭성 의존명사(NNB) — Kiwi는 이들을 원래 정확히 분리해서
+# 태깅하는데(예: 박씨 -> 박/NNP + 씨/NNB), Gemini가 스팬 경계를 이 글자까지
+# 포함해서 반환하면 pretokenized가 그 잘못된 경계를 강제해버려 오히려
+# Kiwi의 기본 판단을 깨뜨린다. 닫힌 소집합이라 사전 조회보다 안전하게
+# 스팬 끝에서 이 글자만 잘라낸다.
+BOUND_HONORIFIC_SUFFIXES = {"씨", "군", "양", "님", "옹"}
+
 SYSTEM_INSTRUCTION = (
     """당신은 한국어 고유명사(NNP) 추출 전문가입니다.
     입력된 문장에서 고유명사를 찾아 반드시 아래 형식의 JSON 배열로만 응답하세요.
@@ -75,5 +82,7 @@ class GeminiHandler:
             except (KeyError, TypeError):
                 continue
             if confidence >= CONFIDENCE_THRESHOLD and sentence[start:end] == word:
+                if end - start > 1 and sentence[end - 1] in BOUND_HONORIFIC_SUFFIXES:
+                    end -= 1
                 pre_tokens.append((start, end, "NNP"))
         return pre_tokens

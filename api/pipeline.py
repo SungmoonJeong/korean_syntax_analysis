@@ -178,6 +178,7 @@ def run_analysis(text: str) -> dict:
         ce_model=CE_MODEL,
         use_llm=USE_LLM,
         ai_handler=AI_HANDLER,
+        kiwi=KIWI,
     )
     gloss_texts = [(o.get("gloss") or "") for o in outs]
 

@@ -15,6 +15,37 @@ from services.openai_client import (OpenAIHandler, openai_generate_gloss,
 # ============================================================================
 # 2. 우선순위 glossig strategy
 # ============================================================================
+# Gemini NNP 병합 토큰 내부 재분해 기준 — 예: "제주지부"를 통째로 사전/LLM에
+# 물으면 "branch"만 남고 "제주(Jeju)" 의미가 사라진다. Kiwi 기본분석으로
+# 재분해가 정확히 2조각(제주+지부)이고 뒷조각이 사전에 독립 명사로 있을 때만
+# 각각 글로스를 구해 합성한다 — 토큰/품사 자체는 그대로 두므로 파싱 결과에는
+# 영향이 없다(klue-dev 검증에서 3조각 이상 분해나 뒷조각 미존재 시 원래
+# 통짜 처리와 회귀가 생기는 걸 확인했기 때문에 정확히 2조각인 경우로 제한).
+NNP_MIN_LEN_FOR_DECOMPOSE = 3
+NNP_TAIL_MIN_LEN = 2
+
+
+def decompose_compound_nnp(form: str, pos: str, kiwi) -> Optional[Tuple[str, str, str]]:
+    """병합된 고유명사(NNP) 토큰을 Kiwi 기본분석으로 재분해.
+
+    (head_form, head_pos, tail_form) 반환, 조건 미충족 시 None
+    (뒷조각이 사전에 독립 명사로 있는지는 호출부에서 확인한다).
+    """
+    if pos != "NNP" or len(form) < NNP_MIN_LEN_FOR_DECOMPOSE or kiwi is None:
+        return None
+    try:
+        default = kiwi.analyze(form, top_n=1)[0][0]
+    except Exception:
+        return None
+    pieces = [(m.form, m.tag.split("-")[0]) for m in default]
+    if len(pieces) != 2:
+        return None
+    (head_form, head_pos), (tail_form, _tail_pos) = pieces
+    if len(tail_form) < NNP_TAIL_MIN_LEN or not head_form:
+        return None
+    return head_form, head_pos, tail_form
+
+
 def compound_rule_with_context(tokens, pos_tags, i):
     """(1) 복합 규칙 — (gloss, pos_eng_override, n, meta) 반환; 미매칭 시 None"""
     # 1-1. 접사 결합 규칙 (2-gram만 지원: 어근 + 접사)
@@ -174,6 +205,7 @@ def gloss_sequence_from_tokens(
     ce_model,
     use_llm: bool,
     ai_handler: OpenAIHandler,
+    kiwi=None,
 ) -> List[dict]:
     # Kiwi xpos 직접 사용 — BERT POS 태거 제거 (정확도 비교 결과 Kiwi 88.7% > BERT 87.3%)
     pos_tags = xpos
@@ -244,6 +276,52 @@ def gloss_sequence_from_tokens(
                 )
             i += span
             continue
+
+        # NNP 내부 재분해 (병합된 고유명사의 의미 손실 방지 — 위 설명 참고)
+        decomposed = decompose_compound_nnp(form, pos, kiwi)
+        if decomposed is not None:
+            head_form, head_pos, tail_form = decomposed
+            head_pos_kor = POS_MAP.get(head_pos, "NA")
+            tail_cand = gloss_dict.get((tail_form, "명사"), [])
+            if tail_cand:  # 뒷조각이 독립 명사로 사전에 있을 때만 재분해를 신뢰
+                if len(tail_cand) == 1:
+                    tail_gloss = tail_cand[0]
+                else:
+                    tail_gloss, _ = select_best_gloss_ce(
+                        sentence, tokens, i, tail_form, "명사", tail_cand, tau, margin, ce_tok, ce_model
+                    )
+                    tail_gloss = tail_gloss or tail_cand[0]
+
+                head_gloss = None
+                head_rule = rule_gloss(head_form, head_pos)
+                if head_rule:
+                    head_gloss = head_rule[0]
+                if not head_gloss:
+                    head_cand = gloss_dict.get((head_form, head_pos_kor), [])
+                    if len(head_cand) == 1:
+                        head_gloss = head_cand[0]
+                    elif len(head_cand) > 1:
+                        head_gloss, _ = select_best_gloss_ce(
+                            sentence, tokens, i, head_form, head_pos_kor, head_cand, tau, margin, ce_tok, ce_model
+                        )
+                if not head_gloss and use_llm and ai_handler:
+                    head_gloss = openai_generate_gloss(head_form, head_pos_kor, sentence, _llm_fn=ai_handler.openai_call)
+                if not head_gloss:
+                    head_gloss = head_form
+
+                outputs.append(
+                    {
+                        "token": form,
+                        "lemma": lemma,
+                        "pos": pos,
+                        "pos_kor": pos_kor,
+                        "pos_eng": pos_eng,
+                        "gloss": f"{head_gloss} {tail_gloss}",
+                        "meta": {"rule": "nnp_compound_decompose", "head": head_form, "tail": tail_form},
+                    }
+                )
+                i += 1
+                continue
 
         # rule
         rule = rule_gloss(form, pos)
