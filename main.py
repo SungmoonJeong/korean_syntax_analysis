@@ -38,11 +38,12 @@ def split_sentences(text: str) -> list[str]:
 
 
 def run_analysis(text, parser, kiwi, gloss_dict, ce_tok, ce_model,
-                 ai_handler, gemini_handler, TAU, MARGIN, USE_LLM) -> dict:
+                 ai_handler, nnp_handler, TAU, MARGIN, USE_LLM) -> dict:
     """단일 문장을 분석하여 결과 dict 반환"""
-    # 고유명사(NNP) 판별: Kiwi 분석 전에 Gemini로 스팬을 뽑아 pretokenized로 고정.
-    # 실패해도 빈 리스트라 원본 Kiwi 분석 그대로 진행됨(파이프라인 안 막힘).
-    nnp_spans = gemini_handler.detect_nnp(text)
+    # 고유명사(NNP) 판별: Kiwi 분석 전에 (Gemini 또는 로컬 NER로) 스팬을 뽑아
+    # pretokenized로 고정. 실패해도 빈 리스트라 원본 Kiwi 분석 그대로 진행됨
+    # (파이프라인 안 막힘).
+    nnp_spans = nnp_handler.detect_nnp(text)
     tokens, xpos, spans_off, lemmas = analyzer.kiwi_morphs(kiwi, text, pretokenized=nnp_spans)
     words_m, upos_m, arcs_m, rels_m = analyzer.parse_dep(parser, tokens)
 
@@ -143,7 +144,7 @@ def main():
     # ── 리소스 로드 ───────────────────────────────────────────────────────────
     client     = loader.load_openai_client()
     ai_handler = openai_client.OpenAIHandler(client)
-    gemini_handler = loader.load_gemini_handler()
+    nnp_handler = loader.load_nnp_handler()
 
     try:
         gloss_dict = loader.load_gloss_pickle(GLOSS_PKL_PATH)
@@ -223,7 +224,7 @@ def main():
                 try:
                     result = run_analysis(
                         sent, parser, kiwi, gloss_dict,
-                        ce_tok, ce_model, ai_handler, gemini_handler,
+                        ce_tok, ce_model, ai_handler, nnp_handler,
                         TAU, MARGIN, USE_LLM,
                     )
                 except Exception as e:

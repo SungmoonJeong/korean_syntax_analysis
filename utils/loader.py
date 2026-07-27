@@ -26,10 +26,13 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from config import KIWI_USER_WORDS
 from services.gemini_client import GeminiHandler
+from services.local_ner_client import LocalNERHandler
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# NNP(고유명사) 판별 백엔드 — "gemini"(기본) 또는 "local"(외부 API 불가 환경, 예: 울산대)
+NNP_BACKEND = os.getenv("NNP_BACKEND", "gemini")
 
 
 @contextmanager
@@ -82,10 +85,12 @@ def load_openai_client():
 
 
 # ============================================================================
-# gemini loader (고유명사 NNP 판별용)
+# NNP(고유명사) 판별 핸들러 로더 — NNP_BACKEND에 따라 Gemini/로컬 중 선택
 # ============================================================================
 @st.cache_resource(show_spinner=True)
-def load_gemini_handler():
+def load_nnp_handler():
+    if NNP_BACKEND == "local":
+        return LocalNERHandler()
     return GeminiHandler(GEMINI_API_KEY)
 
 

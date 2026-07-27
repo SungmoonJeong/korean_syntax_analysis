@@ -26,6 +26,7 @@ venv/
 *.pkl
 supar_morph_dp/
 klue_roberta_ce_listwise_llrd/
+klue_roberta_large_ner/
 model_3_to_1/
 
 # 대용량 데이터 / 사전
