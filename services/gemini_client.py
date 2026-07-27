@@ -70,7 +70,8 @@ class GeminiHandler:
                 ),
             )
             items = json.loads(response.text)
-        except Exception:
+        except Exception as e:
+            print(f"[gemini_client] NNP 감지 실패: {e}")
             return []
 
         pre_tokens = []

@@ -15,7 +15,10 @@ klue-dev/train-morph.conllu(2000+10000문장) 검증 결과, soddokayo/klue-robe
   강제 병합이 불필요함)
 - 트림/필터 후 1글자만 남는 스팬 제외 — Kiwi가 단일 음절 성씨는 이미 NNP로 잘
   분석하므로 강제할 필요가 없고, 근거가 약한 단발성 오탐을 줄인다
+- 로마자로만 이루어진 스팬 제외 — "NXC" 같은 알파벳 약어는 gold에서 SL(외국어)
+  태그를 유지해야 하는데, 모델이 OG/PS로 잘못 분류해 NNP로 덮어쓰는 사례가 있었음
 """
+import re
 from pathlib import Path
 
 import torch
@@ -28,6 +31,7 @@ CONFIDENCE_THRESHOLD = 0.80
 KEEP_TYPES = {"PS", "LC", "OG"}
 BOUND_HONORIFIC_SUFFIXES = {"씨", "군", "양", "님", "옹", "모"}
 MIN_SPAN_LEN = 2
+LATIN_ONLY_RE = re.compile(r"^[A-Za-z0-9]+$")
 
 
 class LocalNERHandler:
@@ -89,6 +93,8 @@ class LocalNERHandler:
         pre_tokens = []
         for s, e in raw_spans:
             if " " in sentence[s:e]:
+                continue
+            if LATIN_ONLY_RE.fullmatch(sentence[s:e]):
                 continue
             if e - s > 1 and sentence[e - 1] in BOUND_HONORIFIC_SUFFIXES:
                 e -= 1
