@@ -36,6 +36,23 @@ cross-encoder + LLM 폴백 체인) → 인라인 HTML 시각화(구/절을 색�
 streamlit run main.py
 ```
 
+### API로 실행
+
+`main.py`(Streamlit) 대신 FastAPI 서버로도 실행할 수 있다. 분석 파이프라인 로직은
+`api/pipeline.py`가 담당하는데, 이는 `main.py`/`utils/loader.py`의 로직을 Streamlit
+런타임 없이 그대로 옮긴 **수동 동기화 사본**이다(import가 아님) — 파이프라인 로직을
+고칠 때는 두 파일 모두 반영해야 한다.
+
+```bash
+uv run uvicorn api.server:app --host 0.0.0.0 --port 8020
+```
+프로젝트 루트에서 실행할 필요는 없다(`api/pipeline.py`가 파일 위치 기준 절대경로를 씀).
+
+- `POST /api/analyze` — 요청 바디 `{"text": "..."}`, 응답 `{"results": [...]}`
+  (문장 단위로 분석해 배열로 반환, 각 원소는 `main.py`의 `run_analysis()`와 동일한 dict)
+- `GET /api/health` — 리소스 로딩 완료 여부(`{"status": "ok"}`/`{"status": "loading"}`)
+- 그 외 경로는 `web/` 디렉터리의 정적 프런트엔드(HTML/CSS/JS)를 그대로 서빙한다.
+
 로드되는 모델 아티팩트 (경로는 `main.py` 상단 상수에 하드코딩, 작업 디렉터리 기준 상대 경로):
 - `gloss_dict.pkl` — 엑셀 사전(`gloss_dictionary/`의 XLS 3개)에서 빌드된 글로싱 사전
 - `klue_roberta_ce_listwise_llrd/` — cross-encoder 모델 + 토크나이저
