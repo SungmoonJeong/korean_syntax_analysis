@@ -406,6 +406,12 @@ class MorphemeSpanExtractorKLUE:
             self.spans.append((label, quote_start, quote_end))
             self.quotation_ranges.append((quote_start, quote_end))
 
+    # "에 따르면/인하여/대하여/의하여/말미암아/관하여"류 관용화된 형식동사 —
+    # _scan_aux_vp_after_jkb는 구조(JKB+동사가 같은 head 공유)만으로 판단해서
+    # "따위로 매거나"(진짜 동사) 같은 것도 같이 잡히므로, SubC 억제에는
+    # 이 닫힌 목록에 있는 동사일 때만 적용해 오탐을 막는다.
+    _AUX_VP_VERB_STEMS = {'따르', '인하', '대하', '말미암', '의하', '관하'}
+
     def _extract_subordinate_clauses(self):
         """종속절 추출 (EC 연결어미 기반)"""
         self.subordinate_ranges = []
@@ -417,6 +423,13 @@ class MorphemeSpanExtractorKLUE:
 
             # 인용절 내부의 EC는 SubC로 내지 않음 (인용절로 이미 처리됨)
             if any(qs <= i <= qe for qs, qe in self.quotation_ranges):
+                continue
+
+            # 이미 JKB+동사+EC 관용구(에 따르면/에 대하여 등)로 AdvP에 흡수된 연결어미는
+            # SubC 후보에서 제외 — 단, 동사가 닫힌 목록에 있을 때만 (구조만으로는
+            # "매다"같은 진짜 동사도 걸리므로 오탐 방지)
+            if any(k <= i <= m and self.tokens[k] in self._AUX_VP_VERB_STEMS
+                   for k, m in self._aux_vp_after_jkb):
                 continue
 
             # rel=VP인 EC는 종속절 연결어미 화이트리스트에 있을 때만 SubC로 처리
