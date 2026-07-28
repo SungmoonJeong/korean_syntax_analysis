@@ -353,7 +353,10 @@ class MorphemeSpanExtractorKLUE:
         """인용절 트리거 형태소 여부 (JKQ 또는 간접인용 EC)"""
         if self._has_tag(i, 'JKQ'):
             return True
-        if self._has_tag(i, 'EC') and self.tokens[i] in self._INDIRECT_QUOTE_EC:
+        # 접미사 매칭 — Kiwi가 "ᆫ다고"처럼 앞에 종결어미가 붙은 변형을 낼 때도
+        # "다고" 등 간접인용 어미로 끝나면 트리거로 인식 (정확 일치만 쓰면 이런
+        # 변형을 놓쳐 인용절 전체를 못 잡는 사례가 klue-dev/train에서 다수 확인됨)
+        if self._has_tag(i, 'EC') and self.tokens[i].endswith(tuple(self._INDIRECT_QUOTE_EC)):
             return True
         return False
 
@@ -401,6 +404,14 @@ class MorphemeSpanExtractorKLUE:
                 quote_start = min(nodes_before) if nodes_before else trigger_eojeol_start
             else:
                 quote_start = max(0, i - 5)
+
+            # 이미 앞에서 확정된 "에 따르면/대하여" 등 관용구(AdvP로 흡수됨)의 끝을
+            # 넘어서까지 역추적하지 않도록 경계를 둔다 — subtree 역추적이 문장
+            # 맨 앞까지 거슬러 올라가는 것을 방지 (_aux_vp_after_jkb는 인용절
+            # 추출보다 먼저 스캔되어 있으므로 여기서 바로 참조 가능)
+            for k, m in self._aux_vp_after_jkb:
+                if m < i and self.tokens[k] in self._AUX_VP_VERB_STEMS and quote_start <= m:
+                    quote_start = m + 1
 
             label = SpanLabels.QUOTEC_DIR if is_direct else SpanLabels.QUOTEC_IND
             self.spans.append((label, quote_start, quote_end))
@@ -1054,19 +1065,10 @@ class MorphemeSpanExtractorKLUE:
                 processed.update(range(vp_start, vp_end + 1))
                 continue
 
-            # 마지막 EC가 인용 신호(라고 등)이면 VP 아님 (QuoteC_Ind가 담당)
-            # 단, 'NNB(것/거)+VCP+EC' 패턴('것이라고')은 예외로 VP 유지
-            is_nnb_vcp_ec = (
-                i >= 2
-                and self._has_tag(i, 'VCP')
-                and self._has_tag(i - 1, 'NNB')
-                and self.tokens[i - 1] in ('것', '거')
-            )
-            if (self.xpos[vp_end].startswith('EC')
-                    and self._is_quote_trigger(vp_end)
-                    and not is_nnb_vcp_ec):
-                processed.update(range(vp_start, vp_end + 1))
-                continue
+            # 참고: 예전엔 "마지막 EC가 인용 신호(라고 등)이면 VP 아님(QuoteC_Ind가
+            # 담당)"으로 제외했었으나, klue-dev/train-morph.conllu 대조 결과 gold는
+            # QuoteC_Ind와 VP를 중첩으로 둘 다 표기하길 원하는 것으로 확인되어 제거함
+            # (인용 트리거 판정이 접미사 매칭으로 넓어지면서 이 가정이 틀렸음이 드러남).
 
             # 왼쪽으로 확장 (VX/XSV 앞의 V 및 NNG+XSV 합성 동사 어간)
             for j in range(i - 1, -1, -1):
