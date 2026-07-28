@@ -37,8 +37,8 @@ RULE_FORM_POS: Dict[Tuple[str, str], List[str] | str] = {
     ("으로서", "JKB"): "As (a social position)",
     ("로써", "JKB"): "with/of/as for/because of",
     ("으로써", "JKB"): "with/of/as for/because of",
-    ("와", "JKB"): ["COM"],
-    ("과", "JKB"): ["COM"],         # 공귀(함께) 용법
+    ("와", "JKB"): "with",
+    ("과", "JKB"): "with",         # 공동격(함께) 용법
     ("이랑", "JKB"): "with",
     ("처럼", "JKB"): "like",
     ("같이", "JKB"): "like",
@@ -582,7 +582,7 @@ RULE_REGEX_POS = {
         (re.compile(r".*(이나마|나마)$"), "although it is something"),
         (re.compile(r".*다가$"), "time/place particle ~ in/on/in addition to"),
         (re.compile(r".*(은|는|ㄴ)?커녕$"), "far from it"),
-        (re.compile(r".*(와|과)$"), "COM"),
+        (re.compile(r".*(와|과)$"), "with"),
     ],
 }
 ANY = "*"
