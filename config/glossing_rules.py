@@ -639,8 +639,8 @@ COMPOUND_JKB_TO = {
     ("ㄴ다기", "ETN", "에", "JKB"): ("I heard that ... so ...", "Connector"),
     ("는다기", ANY, "에", "JKB"): ("I heard that ... so ...", "Connector"),
     # --- advz: 형용사/형용파생 + 게 → Adverb ---
-    (ANY, "VA", "게", "EC"): ("ADVZ", "Adverb"),
-    (ANY, "XSA", "게", "EC"): ("ADVZ", "Adverb"),
+    (ANY, "VA", "게", "EC"): ("Adverb-forming", "Adverb"),
+    (ANY, "XSA", "게", "EC"): ("Adverb-forming", "Adverb"),
     # --- so_that: 게 + 사역 트리거 (하/만들/시키) ---
     # 주의: '게 되다'는 보조용언(Auxiliary Verb)이므로 여기서 제외 — ② 패턴이 처리
     ("게", "EC", "하", "VV"): ("so_that", "Connector"),
